@@ -1,0 +1,1 @@
+python main_metflow.py train
