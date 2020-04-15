@@ -101,12 +101,13 @@ def find_n_modes(args):
             n_modes(args, z, d, var)
             print('Current epoch:', (batch_num + 1), '\t', 'Current ELBO:', elbo_full.data.mean().item())
 
-        ##########################################Repetitions############################################
+    ##########################################Repetitions############################################
 
-        increment = 200
-        best_n_modes = 0
+    increment = 200
+    best_n_modes = 0
 
-        with torch.no_grad():
+    with torch.no_grad():
+        if repetitions:
             for rep in tqdm(range(repetitions)):
                 for k in range(K):
                     if args.step_conditioning == 'free':
@@ -127,10 +128,14 @@ def find_n_modes(args):
                         best_n_modes = new_n_modes
                     if best_n_modes == len(args["locs"]):
                         return best_n_modes
+        else:
+            new_n_modes = n_modes(args, z, d, var)
+            print(new_n_modes)
+            best_n_modes = new_n_modes
 
-        n_modes(args, z, d, var)
-        print('Current epoch:', (rep + 1))
-        return best_n_modes
+    n_modes(args, z, d, var)
+    print('Current epoch:', (rep + 1))
+    return best_n_modes
 
 
 def main(prior_type):
@@ -153,7 +158,7 @@ def main(prior_type):
     args['noise_aggregation'] = 'stacking'  # addition, stacking
 
     args['use_barker'] = True  # If True, we are using Barker's ratios, if not -- vanilla MH
-    args['num_batches'] = 10000  # number of batches
+    args['num_batches'] = 5000 #10000  # number of batches
     args['batch_size_train'] = 250  # batch size for training
     args['repetitions'] = 20000
     args["print_info"] = 1000
