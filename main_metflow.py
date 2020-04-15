@@ -22,6 +22,8 @@ def find_n_modes(args):
     args['covs'] = [var * torch.eye(d, dtype=torch.float32, device=device)] * args[
         'num_gauss']  # list of covariance matrices for each of these gaussians
     K = args["K"]
+    best_n_modes = 0
+
     repetitions = args['repetitions']
     target = GMM_target2(kwargs=args)
 
@@ -33,12 +35,12 @@ def find_n_modes(args):
 
     torch_log_2 = torch.tensor(np.log(2.), device=device, dtype=torchType)
     std_normal = torch.distributions.Normal(loc=torch.tensor(0., dtype=torchType, device=device),
-                                                scale=torch.tensor(1., dtype=torchType, device=device))
+                                            scale=torch.tensor(1., dtype=torchType, device=device))
 
     mu_init = nn.Parameter(torch.zeros(args.z_dim, device=args.device, dtype=args.torchType),
                            requires_grad=args['train_prior'])
     sigma_init = nn.Parameter(torch.ones(args.z_dim, device=args.device, dtype=args.torchType),
-                           requires_grad=args['train_prior'])
+                              requires_grad=args['train_prior'])
 
     params = list(transitions.parameters()) + [mu_init, sigma_init]
     optimizer = torch.optim.Adam(params=params)
@@ -98,13 +100,17 @@ def find_n_modes(args):
         optimizer.zero_grad()
 
         if (batch_num) % print_info_ == 0:
-            n_modes(args, z, d, var)
             print('Current epoch:', (batch_num + 1), '\t', 'Current ELBO:', elbo_full.data.mean().item())
-
+            new_n_modes = n_modes(args, z, d, var)
+            print(new_n_modes)
+            if repetitions == 0:
+                if new_n_modes > best_n_modes:
+                    best_n_modes = new_n_modes
+                if best_n_modes == len(args["locs"]):
+                    return best_n_modes
     ##########################################Repetitions############################################
 
     increment = 200
-    best_n_modes = 0
 
     with torch.no_grad():
         if repetitions:
@@ -128,13 +134,13 @@ def find_n_modes(args):
                         best_n_modes = new_n_modes
                     if best_n_modes == len(args["locs"]):
                         return best_n_modes
+                print('Current epoch:', (rep + 1))
+                n_modes(args, z, d, var)
         else:
             new_n_modes = n_modes(args, z, d, var)
             print(new_n_modes)
             best_n_modes = new_n_modes
 
-    n_modes(args, z, d, var)
-    print('Current epoch:', (rep + 1))
     return best_n_modes
 
 
@@ -154,23 +160,23 @@ def main(prior_type):
     args['K'] = 7
     args['p'] = 0.5  # probability of forward transition
 
-    args['step_conditioning'] = 'fixed'  # fixed, free, None
+    args['step_conditioning'] = None  # fixed, free, None
     args['noise_aggregation'] = 'stacking'  # addition, stacking
 
     args['use_barker'] = True  # If True, we are using Barker's ratios, if not -- vanilla MH
-    args['num_batches'] = 5000 #10000  # number of batches
-    args['batch_size_train'] = 250  # batch size for training
-    args['repetitions'] = 20000
+    args['num_batches'] = 10000  # number of batches
+    args['batch_size_train'] = 300  # batch size for training
+    args['repetitions'] = 0
     args["print_info"] = 1000
-
 
     logging.basicConfig(filename="./results_metflow_{}.txt".format(args['prior']), level=logging.INFO)
     ################################################################################################
-    dim_list = [5, 7, 10, 20, 50, 100]
+    dim_list = [3, 5, 7, 10, 20, 50, 100]
     res_list = []
 
     for _ in range(5):
         for d in dim_list:
+            print('Current dimensionality: ', d)
             args["z_dim"] = d
             # RNVP parameters
             args['hidden_dim'] = 2 * args["z_dim"]
@@ -192,11 +198,13 @@ def main(prior_type):
                                                          nn.Linear(args['hidden_dim'], args['hidden_dim']),
                                                          nn.LeakyReLU(), nn.Linear(args['hidden_dim'], args['z_dim']))
                 elif args['noise_aggregation'] == 'stacking':
-                    args['nets'] = lambda: nn.Sequential(nn.Linear(args['z_dim'] * 2, args['hidden_dim']), nn.LeakyReLU(),
+                    args['nets'] = lambda: nn.Sequential(nn.Linear(args['z_dim'] * 2, args['hidden_dim']),
+                                                         nn.LeakyReLU(),
                                                          nn.Linear(args['hidden_dim'], args['hidden_dim']),
                                                          nn.LeakyReLU(), nn.Linear(args['hidden_dim'], args['z_dim']),
                                                          nn.Tanh())
-                    args['nett'] = lambda: nn.Sequential(nn.Linear(args['z_dim'] * 2, args['hidden_dim']), nn.LeakyReLU(),
+                    args['nett'] = lambda: nn.Sequential(nn.Linear(args['z_dim'] * 2, args['hidden_dim']),
+                                                         nn.LeakyReLU(),
                                                          nn.Linear(args['hidden_dim'], args['hidden_dim']),
                                                          nn.LeakyReLU(), nn.Linear(args['hidden_dim'], args['z_dim']))
 
@@ -209,6 +217,7 @@ def main(prior_type):
             res_list.append(res)
 
     print(res_list)
+
 
 if __name__ == "__main__":
     prior_type = str(sys.argv[1])  # either train or fix
