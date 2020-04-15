@@ -14,7 +14,6 @@ def wide_normal(args, target):
 
 def hoffman_prior(args, target):
     ##### Minimize KL first
-
     mu_init_hoff = nn.Parameter(torch.zeros(args.z_dim, device=args.device, dtype=args.torchType))
     sigma_init_hoff = nn.Parameter(torch.ones(args.z_dim, device=args.device, dtype=args.torchType))
     optimizer = torch.optim.Adam(params=[mu_init_hoff, sigma_init_hoff], lr=1e-3)
@@ -31,6 +30,7 @@ def hoffman_prior(args, target):
             print(current_kl.mean().cpu().detach().numpy())
     mu_init_hoff.requires_grad_(False)
     sigma_init_hoff.requires_grad_(False)
+#     pdb.set_trace()
 
     class hoff_prior():
         def __init__(self, mu, sigma, std_normal):

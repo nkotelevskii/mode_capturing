@@ -8,6 +8,9 @@ import time
 import numpy as np
 from priors import get_prior
 import pdb
+import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]=""
 
 
 device = "cpu" #"cuda:0" if torch.cuda.is_available() else "cpu"
@@ -32,8 +35,6 @@ def find_n_modes(args):
 
     prior = get_prior(args, target)
 
-    # pdb.set_trace()
-
     kernel = NUTS(potential_fn=energy)
     num_samples = 10000
     nuts = torch.tensor([], device=device)
@@ -47,7 +48,8 @@ def find_n_modes(args):
         best_n_modes = np.zeros(n_chains)
     start = time.time()
 
-    init_samples = prior.sample((n_chains, args.z_dim,))
+#     pdb.set_trace()
+    init_samples = prior.sample((n_chains, args.z_dim))
     init_params = {'points': init_samples}
     ## First we run warmup
     mcmc = MCMC(kernel=kernel, num_samples=1,
