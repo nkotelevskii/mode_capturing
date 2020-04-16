@@ -9,6 +9,7 @@ import numpy as np
 from src.transitions import RealNVP_new
 from priors import get_prior
 import pdb
+import time
 
 device = "cuda:1" if torch.cuda.is_available() else "cpu"
 torchType = torch.float32
@@ -164,7 +165,7 @@ def main(prior_type):
     args['noise_aggregation'] = 'stacking'  # addition, stacking
 
     args['use_barker'] = True  # If True, we are using Barker's ratios, if not -- vanilla MH
-    args['num_batches'] = 10000  # number of batches
+    args['num_batches'] = 5000  # number of batches
     args['batch_size_train'] = 300  # batch size for training
     args['repetitions'] = 0
     args["print_info"] = 1000
@@ -211,9 +212,12 @@ def main(prior_type):
             args['masks'] = np.array(
                 [[i % 2 for i in range(args["z_dim"])], [(i + 1) % 2 for i in range(args["z_dim"])]]).astype(np.float32)
 
+            start = time.time()
             res = find_n_modes(args)
-            print("For model {} and dim {}, n_modes = {}".format("algo_fixed", d, res))
-            logging.info("For model {} and dim {}, n_modes = {}".format("algo_fixed", d, res))
+            finish = time.time()
+            t = finish - start
+            print("For model {} and dim {}, n_modes = {}, time = {}".format("algo_fixed", d, res, t))
+            logging.info("For model {} and dim {}, n_modes = {}, time = {}".format("algo_fixed", d, res, t))
             res_list.append(res)
 
     print(res_list)

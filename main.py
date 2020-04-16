@@ -113,10 +113,13 @@ def main(n_ch, prior_type):
         for d in dim_list:
             args["z_dim"] = d
             # NUTS parameters
+            start = time.time()
             res = find_n_modes(args)
+            finish = time.time()
+            t = finish - start
             res_list.append(res)
-            print("For model {} and dim {}, n_modes = {}".format("NUTS", d, res))
-            logging.info("For model {} and dim {}, n_modes = {}".format("NUTS", d, res))
+            print("For model {} and dim {}, n_modes = {}, time = {}".format("NUTS", d, res, t))
+            logging.info("For model {} and dim {}, n_modes = {}, time = {}".format("NUTS", d, res, t))
 
     print(res_list)
 

@@ -1,35 +1,11 @@
-INFO:root:For model algo_fixed and dim 3, n_modes = 4
-INFO:root:For model algo_fixed and dim 5, n_modes = 2
-INFO:root:For model algo_fixed and dim 7, n_modes = 3
-INFO:root:For model algo_fixed and dim 10, n_modes = 2
-INFO:root:For model algo_fixed and dim 20, n_modes = 3
-INFO:root:For model algo_fixed and dim 50, n_modes = 2
-INFO:root:For model algo_fixed and dim 100, n_modes = 2
-INFO:root:For model algo_fixed and dim 3, n_modes = 8
-INFO:root:For model algo_fixed and dim 5, n_modes = 8
-INFO:root:For model algo_fixed and dim 7, n_modes = 4
-INFO:root:For model algo_fixed and dim 10, n_modes = 2
-INFO:root:For model algo_fixed and dim 20, n_modes = 2
-INFO:root:For model algo_fixed and dim 50, n_modes = 1
-INFO:root:For model algo_fixed and dim 100, n_modes = 2
-INFO:root:For model algo_fixed and dim 3, n_modes = 8
-INFO:root:For model algo_fixed and dim 5, n_modes = 3
-INFO:root:For model algo_fixed and dim 7, n_modes = 2
-INFO:root:For model algo_fixed and dim 10, n_modes = 1
-INFO:root:For model algo_fixed and dim 20, n_modes = 2
-INFO:root:For model algo_fixed and dim 50, n_modes = 2
-INFO:root:For model algo_fixed and dim 100, n_modes = 2
-INFO:root:For model algo_fixed and dim 3, n_modes = 8
-INFO:root:For model algo_fixed and dim 5, n_modes = 4
-INFO:root:For model algo_fixed and dim 7, n_modes = 4
-INFO:root:For model algo_fixed and dim 10, n_modes = 1
-INFO:root:For model algo_fixed and dim 20, n_modes = 3
-INFO:root:For model algo_fixed and dim 50, n_modes = 3
-INFO:root:For model algo_fixed and dim 100, n_modes = 2
-INFO:root:For model algo_fixed and dim 3, n_modes = 8
-INFO:root:For model algo_fixed and dim 5, n_modes = 2
-INFO:root:For model algo_fixed and dim 7, n_modes = 1
-INFO:root:For model algo_fixed and dim 10, n_modes = 2
-INFO:root:For model algo_fixed and dim 20, n_modes = 2
-INFO:root:For model algo_fixed and dim 50, n_modes = 3
-INFO:root:For model algo_fixed and dim 100, n_modes = 2
+INFO:root:For model algo_fixed and dim 3, n_modes = 8, time = 146.8164563179016
+INFO:root:For model algo_fixed and dim 5, n_modes = 5, time = 721.0943911075592
+INFO:root:For model algo_fixed and dim 7, n_modes = 4, time = 768.60719871521
+INFO:root:For model algo_fixed and dim 10, n_modes = 2, time = 746.2049751281738
+INFO:root:For model algo_fixed and dim 20, n_modes = 2, time = 735.978520154953
+INFO:root:For model algo_fixed and dim 50, n_modes = 2, time = 800.6414785385132
+INFO:root:For model algo_fixed and dim 100, n_modes = 2, time = 789.5284452438354
+INFO:root:For model algo_fixed and dim 3, n_modes = 8, time = 140.88867378234863
+INFO:root:For model algo_fixed and dim 5, n_modes = 4, time = 764.7251269817352
+INFO:root:For model algo_fixed and dim 7, n_modes = 2, time = 755.6691422462463
+INFO:root:For model algo_fixed and dim 10, n_modes = 4, time = 715.9153945446014
