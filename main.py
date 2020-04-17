@@ -36,58 +36,53 @@ def find_n_modes(args):
     prior = get_prior(args, target)
 
     kernel = NUTS(potential_fn=energy)
-    num_samples = 10000
-    nuts = torch.tensor([], device=device)
-    nuts_ungrouped = torch.tensor([], device=device)
-    n_stop = 10  # number of time we stop to check n_modes (to allow fair comparison with other tests, we take the greatest number of modes retrieved)
+    n_stop = 1  # number of time we stop to check n_modes (to allow fair comparison with other tests, we take the greatest number of modes retrieved)
     warmup_steps = 1500
     n_chains = args['n_chains']
+    num_samples = 8000 // n_chains
+    nuts = torch.tensor([], device=device)
+    nuts_ungrouped = torch.tensor([], device=device)
     if n_chains > 1:
         best_n_modes = 0.
     else:
         best_n_modes = np.zeros(n_chains)
-    start = time.time()
 
 #     pdb.set_trace()
     init_samples = prior.sample((n_chains, args.z_dim))
-    init_params = {'points': init_samples}
-#     ## First we run warmup
-#     mcmc = MCMC(kernel=kernel, num_samples=1,
-#                 initial_params=init_params,
-#                 num_chains=n_chains, warmup_steps=warmup_steps)
-#     mcmc.run()
-#     init_samples = mcmc.get_samples(group_by_chain=True)["points"].view(n_chains,
-#                                                                         -1)  # group_by_chain = True allows us to retrieve the last sample of each chain
-    pdb.set_trace()
-    init_samples = torch.cat([chain[None] for chain in args.locs])
-    init_params = {'points': init_samples}
+#     init_params = {'points': init_samples}
+    
+    ## First we run warmup
+#     current_samples = torch.tensor([], device=args.device)
+#     for ind in range(n_chains):
+#         mcmc = MCMC(kernel=kernel, num_samples=1,
+#                     initial_params={'points': init_samples[ind]},
+#                     num_chains=1, warmup_steps=warmup_steps)
+#         mcmc.run()
+#         current_samples = torch.cat([current_samples, mcmc.get_samples(group_by_chain=True)['points'].view(1, -1, d)])
+#     init_samples = current_samples.view(n_chains, -1)
+    
+#     init_samples = torch.cat([chain[None] for chain in args.locs])
+#     init_params = {'points': init_samples}
     for i in range(n_stop): ## n_stop -- how often we check n modes
-        mcmc = MCMC(kernel=kernel, num_samples=2,#num_samples // n_stop,
-                    initial_params=init_params,
-                    num_chains=n_chains, warmup_steps=0)
-        mcmc.run()
-        nuts = torch.cat([nuts, mcmc.get_samples(group_by_chain=True)['points'].view(n_chains, -1, d)], dim=1)
-        nuts_ungrouped = torch.cat([nuts_ungrouped, mcmc.get_samples(group_by_chain=False)['points'].view(-1, d)],
+        current_samples = torch.tensor([], device=args.device)
+        for ind in range(n_chains):
+            mcmc = MCMC(kernel=kernel, num_samples=num_samples // n_stop,
+                        initial_params={'points': init_samples[ind]},
+                        num_chains=1, warmup_steps=warmup_steps)
+            mcmc.run()
+            current_samples = torch.cat([current_samples, mcmc.get_samples(group_by_chain=True)['points'].view(1, -1, d)])
+#         pdb.set_trace()
+        nuts = torch.cat([nuts, current_samples], dim=1)
+        nuts_ungrouped = torch.cat([nuts_ungrouped, nuts.view(-1, d)],
                                    dim=0)
         init_samples = nuts[:, -1]  # last sample of each chain (shape = n_chains x z_dim)
-        init_params = {'points': init_samples}
+#         init_params = {'points': init_samples}
         # pdb.set_trace()
-        if n_chains > 1:
-            new_n_modes = n_modes(args, nuts_ungrouped, d, var)
-            if new_n_modes > best_n_modes:
-                best_n_modes = new_n_modes
-            if best_n_modes == 8:
-                break
-        else:
-            for k in range(n_chains):
-                new_n_modes = n_modes(args, nuts[k], d, var)
-                if new_n_modes > best_n_modes[k]:
-                    best_n_modes[k] = new_n_modes
-                if (best_n_modes == 8).all():
-                    break
-    end = time.time()
-
-    print("time = {}".format(end - start))
+        new_n_modes = n_modes(args, nuts_ungrouped, d, var)
+        if new_n_modes > best_n_modes:
+            best_n_modes = new_n_modes
+        if best_n_modes == 8:
+            break
     print(best_n_modes)
 
     return best_n_modes

@@ -61,6 +61,7 @@ def find_n_modes(args):
         grad_elbo = torch.mean(elbo_full + elbo_full.detach() * (sum_log_alpha + sum_log_probs))
         return elbo_full, grad_elbo
 
+    final_samples = torch.tensor([], device=args.device)
     iterator = tqdm(range(args.num_batches))
     for batch_num in iterator:  # cycle over batches
         if args.step_conditioning == 'free':
@@ -102,13 +103,14 @@ def find_n_modes(args):
 
         if (batch_num) % print_info_ == 0:
             print('Current epoch:', (batch_num + 1), '\t', 'Current ELBO:', elbo_full.data.mean().item())
-            new_n_modes = n_modes(args, z, d, var)
-            print(new_n_modes)
-            if repetitions == 0:
-                if new_n_modes > best_n_modes:
-                    best_n_modes = new_n_modes
-                if best_n_modes == len(args["locs"]):
-                    return best_n_modes
+            final_samples = torch.cat([final_samples, z.detach()], dim=0)
+    new_n_modes = n_modes(args, final_samples, d, var)
+    print(new_n_modes)
+    if repetitions == 0:
+        if new_n_modes > best_n_modes:
+            best_n_modes = new_n_modes
+        if best_n_modes == len(args["locs"]):
+            return best_n_modes
     ##########################################Repetitions############################################
 
     increment = 200
@@ -165,10 +167,10 @@ def main(prior_type):
     args['noise_aggregation'] = 'stacking'  # addition, stacking
 
     args['use_barker'] = True  # If True, we are using Barker's ratios, if not -- vanilla MH
-    args['num_batches'] = 5000  # number of batches
-    args['batch_size_train'] = 300  # batch size for training
+    args['num_batches'] = 10000  # number of batches
+    args['batch_size_train'] = 400  # batch size for training
     args['repetitions'] = 0
-    args["print_info"] = 1000
+    args["print_info"] = 500
 
     logging.basicConfig(filename="./results_metflow_{}.txt".format(args['prior']), level=logging.INFO)
     ################################################################################################
