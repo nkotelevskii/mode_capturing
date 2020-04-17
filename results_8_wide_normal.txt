@@ -18,3 +18,10 @@ INFO:root:For model NUTS and dim 3, n_modes = 5, time = 361.0900535583496
 INFO:root:For model NUTS and dim 5, n_modes = 1, time = 428.8322777748108
 INFO:root:For model NUTS and dim 7, n_modes = 1, time = 484.8776755332947
 INFO:root:For model NUTS and dim 10, n_modes = 1, time = 624.7275319099426
+INFO:root:For model NUTS and dim 20, n_modes = 1, time = 879.2139599323273
+INFO:root:For model NUTS and dim 50, n_modes = 1, time = 1844.8467991352081
+INFO:root:For model NUTS and dim 100, n_modes = 1, time = 3559.5791795253754
+INFO:root:For model NUTS and dim 20, n_modes = 1, time = 865.6916971206665
+INFO:root:For model NUTS and dim 50, n_modes = 1, time = 1823.0797321796417
+INFO:root:For model NUTS and dim 100, n_modes = 1, time = 3332.2392172813416
+INFO:root:For model NUTS and dim 20, n_modes = 1, time = 790.4627239704132

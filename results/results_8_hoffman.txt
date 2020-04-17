@@ -18,3 +18,23 @@ INFO:root:For model NUTS and dim 3, n_modes = 5
 INFO:root:For model NUTS and dim 5, n_modes = 2
 INFO:root:For model NUTS and dim 7, n_modes = 1
 INFO:root:For model NUTS and dim 10, n_modes = 1
+INFO:root:For model NUTS and dim 3, n_modes = 6, time = 464.9245386123657
+INFO:root:For model NUTS and dim 5, n_modes = 1, time = 461.03057503700256
+INFO:root:For model NUTS and dim 7, n_modes = 1, time = 588.454687833786
+INFO:root:For model NUTS and dim 10, n_modes = 1, time = 756.883407831192
+INFO:root:For model NUTS and dim 3, n_modes = 6, time = 466.4513192176819
+INFO:root:For model NUTS and dim 5, n_modes = 1, time = 580.1366364955902
+INFO:root:For model NUTS and dim 7, n_modes = 1, time = 606.8406369686127
+INFO:root:For model NUTS and dim 10, n_modes = 1, time = 702.1978948116302
+INFO:root:For model NUTS and dim 3, n_modes = 7, time = 424.6751947402954
+INFO:root:For model NUTS and dim 5, n_modes = 4, time = 581.4644167423248
+INFO:root:For model NUTS and dim 7, n_modes = 1, time = 575.3142094612122
+INFO:root:For model NUTS and dim 10, n_modes = 1, time = 683.1504857540131
+INFO:root:For model NUTS and dim 3, n_modes = 4, time = 359.99756121635437
+INFO:root:For model NUTS and dim 5, n_modes = 3, time = 512.6601395606995
+INFO:root:For model NUTS and dim 7, n_modes = 3, time = 539.5463764667511
+INFO:root:For model NUTS and dim 10, n_modes = 1, time = 653.9967157840729
+INFO:root:For model NUTS and dim 3, n_modes = 6, time = 406.79784393310547
+INFO:root:For model NUTS and dim 5, n_modes = 2, time = 503.6458921432495
+INFO:root:For model NUTS and dim 7, n_modes = 1, time = 572.7669515609741
+INFO:root:For model NUTS and dim 10, n_modes = 1, time = 634.7174205780029

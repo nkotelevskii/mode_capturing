@@ -51,16 +51,18 @@ def find_n_modes(args):
 #     pdb.set_trace()
     init_samples = prior.sample((n_chains, args.z_dim))
     init_params = {'points': init_samples}
-    ## First we run warmup
-    mcmc = MCMC(kernel=kernel, num_samples=1,
-                initial_params=init_params,
-                num_chains=n_chains, warmup_steps=warmup_steps)
-    mcmc.run()
-    init_samples = mcmc.get_samples(group_by_chain=True)["points"].view(n_chains,
-                                                                        -1)  # group_by_chain = True allows us to retrieve the last sample of each chain
+#     ## First we run warmup
+#     mcmc = MCMC(kernel=kernel, num_samples=1,
+#                 initial_params=init_params,
+#                 num_chains=n_chains, warmup_steps=warmup_steps)
+#     mcmc.run()
+#     init_samples = mcmc.get_samples(group_by_chain=True)["points"].view(n_chains,
+#                                                                         -1)  # group_by_chain = True allows us to retrieve the last sample of each chain
+    pdb.set_trace()
+    init_samples = torch.cat([chain[None] for chain in args.locs])
     init_params = {'points': init_samples}
     for i in range(n_stop): ## n_stop -- how often we check n modes
-        mcmc = MCMC(kernel=kernel, num_samples=num_samples // n_stop,
+        mcmc = MCMC(kernel=kernel, num_samples=2,#num_samples // n_stop,
                     initial_params=init_params,
                     num_chains=n_chains, warmup_steps=0)
         mcmc.run()
@@ -105,8 +107,8 @@ def main(n_ch, prior_type):
 
     logging.basicConfig(filename="./results_{}_{}.txt".format(args['n_chains'], args['prior']), level=logging.INFO)
     ################################################################################################
-    # pdb.set_trace()
-    dim_list = [3, 5, 7, 10]# , 20, 50, 100]
+#     pdb.set_trace()
+    dim_list = [100] #[20, 50, 100]
     res_list = []
 
     for _ in range(5):
