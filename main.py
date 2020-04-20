@@ -37,7 +37,7 @@ def find_n_modes(args):
 
     kernel = NUTS(potential_fn=energy)
     n_stop = 1  # number of time we stop to check n_modes (to allow fair comparison with other tests, we take the greatest number of modes retrieved)
-    warmup_steps = 1500
+    warmup_steps = 4000
     n_chains = args['n_chains']
     num_samples = 8000 // n_chains
     nuts = torch.tensor([], device=device)
@@ -103,7 +103,7 @@ def main(n_ch, prior_type):
     logging.basicConfig(filename="./results_{}_{}.txt".format(args['n_chains'], args['prior']), level=logging.INFO)
     ################################################################################################
 #     pdb.set_trace()
-    dim_list = [100] #[20, 50, 100]
+    dim_list = [3, 5, 7, 10, 20, 50, 100]
     res_list = []
 
     for _ in range(5):

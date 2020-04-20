@@ -52,11 +52,10 @@ def find_n_modes(args):
     else:
         cond_vectors = [None] * K
 
-    def compute_loss(z, u, sum_log_jacobian, sum_log_alpha, sum_log_probs):
-        log_p = target.get_logdensity(z)
+    def compute_loss(z, u, sum_log_jacobian, sum_log_alpha, sum_log_probs, sum_log_sigma=0.):
         log_r = -args.K * torch_log_2
-        log_m_tilde = std_normal.log_prob(u).sum(1) - sum_log_jacobian
-        log_m = log_m_tilde + sum_log_alpha
+        log_p = target.get_logdensity(z)
+        log_m = std_normal.log_prob(u).sum(1) - sum_log_jacobian + sum_log_alpha - sum_log_sigma
         elbo_full = log_p + log_r - log_m
         grad_elbo = torch.mean(elbo_full + elbo_full.detach() * (sum_log_alpha + sum_log_probs))
         return elbo_full, grad_elbo
@@ -75,7 +74,15 @@ def find_n_modes(args):
                                     device=args.device)
         sum_log_jacobian = torch.zeros(u.shape[0], dtype=args.torchType,
                                        device=args.device)
-        z = mu_init + u * sigma_init
+        
+        if args['train_prior']:
+            sum_log_sigma = torch.sum(nn.functional.softplus(sigma_init).log())
+            z = mu_init + u * nn.functional.softplus(sigma_init)
+        else:
+            sum_log_sigma = 0.
+            z = mu_init + u * sigma_init
+        
+            
         for k in range(K):
             if args.step_conditioning is None:
                 z, log_jac, current_log_alphas, \
@@ -95,54 +102,55 @@ def find_n_modes(args):
             sum_log_alpha = sum_log_alpha + current_log_alphas
             sum_log_probs = sum_log_probs + current_log_probs
             sum_log_jacobian = sum_log_jacobian + log_jac  # refresh log jacobian
+            
+        if batch_num >= args.record_epoch:
+            final_samples = torch.cat([final_samples, z.detach()], dim=0)
 
-        elbo_full, grad_elbo = compute_loss(z, u, sum_log_jacobian, sum_log_alpha, sum_log_probs)
+        elbo_full, grad_elbo = compute_loss(z, u, sum_log_jacobian, sum_log_alpha, sum_log_probs, sum_log_sigma)
         (-grad_elbo).backward()
         optimizer.step()
         optimizer.zero_grad()
 
         if (batch_num) % print_info_ == 0:
             print('Current epoch:', (batch_num + 1), '\t', 'Current ELBO:', elbo_full.data.mean().item())
-            final_samples = torch.cat([final_samples, z.detach()], dim=0)
     new_n_modes = n_modes(args, final_samples, d, var)
     print(new_n_modes)
-    if repetitions == 0:
-        if new_n_modes > best_n_modes:
+    with torch.no_grad():
+        if repetitions == 0:
             best_n_modes = new_n_modes
-        if best_n_modes == len(args["locs"]):
             return best_n_modes
     ##########################################Repetitions############################################
 
-    increment = 200
+#     increment = 200
 
-    with torch.no_grad():
-        if repetitions:
-            for rep in tqdm(range(repetitions)):
-                for k in range(K):
-                    if args.step_conditioning == 'free':
-                        cond_vectors = [[std_normal.sample((args.z_dim,)), args.noise_aggregation] for k in range(K)]
-                    # sample alpha - transition probabilities
-                    if args.step_conditioning is None:
-                        z, _, _, \
-                        _, _ = transitions[k].make_transition(z_old=z, k=cond_vectors[k],
-                                                              target_distr=target)
-                    else:
-                        z, _, _, \
-                        _, _ = transitions.make_transition(z_old=z, k=cond_vectors[k],
-                                                           target_distr=target)
-                if rep % increment == 0:
-                    new_n_modes = n_modes(args, z, d, var)
-                    print(new_n_modes)
-                    if new_n_modes > best_n_modes:
-                        best_n_modes = new_n_modes
-                    if best_n_modes == len(args["locs"]):
-                        return best_n_modes
-                print('Current epoch:', (rep + 1))
-                n_modes(args, z, d, var)
-        else:
-            new_n_modes = n_modes(args, z, d, var)
-            print(new_n_modes)
-            best_n_modes = new_n_modes
+#     with torch.no_grad():
+#         if repetitions:
+#             for rep in tqdm(range(repetitions)):
+#                 for k in range(K):
+#                     if args.step_conditioning == 'free':
+#                         cond_vectors = [[std_normal.sample((args.z_dim,)), args.noise_aggregation] for k in range(K)]
+#                     # sample alpha - transition probabilities
+#                     if args.step_conditioning is None:
+#                         z, _, _, \
+#                         _, _ = transitions[k].make_transition(z_old=z, k=cond_vectors[k],
+#                                                               target_distr=target)
+#                     else:
+#                         z, _, _, \
+#                         _, _ = transitions.make_transition(z_old=z, k=cond_vectors[k],
+#                                                            target_distr=target)
+#                 if rep % increment == 0:
+#                     new_n_modes = n_modes(args, z, d, var)
+#                     print(new_n_modes)
+#                     if new_n_modes > best_n_modes:
+#                         best_n_modes = new_n_modes
+#                     if best_n_modes == len(args["locs"]):
+#                         return best_n_modes
+#                 print('Current epoch:', (rep + 1))
+#                 n_modes(args, z, d, var)
+# #         else:
+#             new_n_modes = n_modes(args, z, d, var)
+#             print(new_n_modes)
+#             best_n_modes = new_n_modes
 
     return best_n_modes
 
@@ -163,21 +171,22 @@ def main(prior_type):
     args['K'] = 7
     args['p'] = 0.5  # probability of forward transition
 
-    args['step_conditioning'] = None  # fixed, free, None
+    args['step_conditioning'] = 'fixed'  # fixed, free, None
     args['noise_aggregation'] = 'stacking'  # addition, stacking
 
     args['use_barker'] = True  # If True, we are using Barker's ratios, if not -- vanilla MH
-    args['num_batches'] = 10000  # number of batches
+    args['num_batches'] = 5000  # number of batches
     args['batch_size_train'] = 400  # batch size for training
     args['repetitions'] = 0
-    args["print_info"] = 500
+    args["print_info"] = 250
+    args.record_epoch = args['num_batches'] - 8000 // args['batch_size_train']
 
     logging.basicConfig(filename="./results_metflow_{}.txt".format(args['prior']), level=logging.INFO)
     ################################################################################################
     dim_list = [3, 5, 7, 10, 20, 50, 100]
     res_list = []
 
-    for _ in range(5):
+    for _ in range(4):
         for d in dim_list:
             print('Current dimensionality: ', d)
             args["z_dim"] = d
