@@ -113,10 +113,10 @@ def find_n_modes(args):
 
         if (batch_num) % print_info_ == 0:
             print('Current epoch:', (batch_num + 1), '\t', 'Current ELBO:', elbo_full.data.mean().item())
-    new_n_modes = n_modes(args, final_samples, d, var)
-    print(new_n_modes)
     with torch.no_grad():
         if repetitions == 0:
+            new_n_modes = n_modes(args, final_samples, d, var)
+            print(new_n_modes)
             best_n_modes = new_n_modes
             return best_n_modes
     ##########################################Repetitions############################################

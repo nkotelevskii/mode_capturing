@@ -308,13 +308,13 @@ class BNAF(Transition_new):
     def sample(self, batchSize):
         raise NotImplementedError
 
-class NAF(Transition_new):
+class NAF(nn.Module):
     def __init__(self, kwargs, device):
-        super(NAF, self).__init__(kwargs, device)
+        super().__init__()
         self.z_dim = kwargs["z_dim"]
         self.flow = NeuralAutoregressive(
                     AutoRegressiveNN(self.z_dim, [2 * self.z_dim], param_dims=[self.z_dim] * 3),
-                    hidden_units=self.z_dim)
+                    hidden_units=3 * self.z_dim)
 
 
     def _forward_step(self, z_old, x=None, k=None):
