@@ -11,7 +11,7 @@ from priors import get_prior
 import pdb
 import time
 
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
+device = "cuda:1" if torch.cuda.is_available() else "cpu"
 torchType = torch.float32
 
 
@@ -158,8 +158,8 @@ def main():
     # HMC params
 
     
-    args.K = 12 # How many different kernels to train
-    args.N = 10 ## Number of Leapfrogs
+    args.K = 5 # How many different kernels to train
+    args.N = 1 ## Number of Leapfrogs
     args.gamma = 0.1 ## Stepsize
     args.alpha = 0.5  ## For partial momentum refresh
     args['use_barker'] = True  # If True, we are using Barker's ratios, if not -- vanilla MH

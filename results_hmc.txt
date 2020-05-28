@@ -69,3 +69,7 @@ INFO:root:For model algo_fixed and dim 10, n_modes = 8, time = 754.6337330341339
 INFO:root:For model algo_fixed and dim 20, n_modes = 8, time = 771.838410615921
 INFO:root:For model algo_fixed and dim 50, n_modes = 8, time = 828.204776763916
 INFO:root:For model algo_fixed and dim 100, n_modes = 8, time = 931.1360397338867
+INFO:root:For model algo_fixed and dim 3, n_modes = 8, time = 121.02366065979004
+INFO:root:For model algo_fixed and dim 5, n_modes = 3, time = 122.02775692939758
+INFO:root:For model algo_fixed and dim 7, n_modes = 0, time = 130.33796095848083
+INFO:root:For model algo_fixed and dim 10, n_modes = 0, time = 163.90987944602966
